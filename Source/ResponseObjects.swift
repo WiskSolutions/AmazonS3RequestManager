@@ -32,7 +32,7 @@ public struct S3File {
     public let lastModifiedDate: Date
     
     /// The size in bytes of the object
-    public let size: Float
+    public let size: Int64
     
     /// An MD5 hash of the object. This only reflects changes to the contents of an object, not its metadata.
     public let entityTag: String?
@@ -80,7 +80,7 @@ public final class S3BucketObjectList: ResponseObjectSerializable {
             let dateString = xml["LastModified"].element?.text,
             let date =  dateFromS3Date(dateString),
             let sizeString = xml["Size"].element?.text,
-            let size = Float(sizeString) else { return nil }
+            let size = Int64(sizeString) else { return nil }
 
         var storageClass: StorageClass?
         if let storageClassString = xml["StorageClass"].element?.text {
@@ -126,7 +126,7 @@ public final class S3ObjectMetaData: ResponseObjectSerializable {
         for (header,value) in headers {
             let prefix = "x-amz-meta-"
             if header.hasPrefix(prefix) {
-                let trimmedHeaderName = header.substring(from: prefix.characters.index(prefix.startIndex, offsetBy: prefix.characters.count))
+                let trimmedHeaderName = String(header[prefix.index(prefix.startIndex, offsetBy: prefix.count)...])
                 metaData[trimmedHeaderName] = value
             }
         }
